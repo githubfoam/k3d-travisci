@@ -47,27 +47,31 @@ k3d-demo-worker-2   Ready    <none>   7m8s    v1.17.3+k3s1
 
 $ sudo kubectl get pods --all-namespaces
 
-NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+NAMESPACE            NAME                                      READY   STATUS      RESTARTS   AGE
 
-kube-system   local-path-provisioner-58fb86bdfd-7wx8k   1/1     Running     0          7m2s
+kube-system          coredns-d798c9dd-js8b5                    1/1     Running     0          7m6s
 
-kube-system   metrics-server-6d684c7b5-cjw9l            1/1     Running     0          7m2s
+kube-system          local-path-provisioner-58fb86bdfd-dxwfm   1/1     Running     0          7m6s
 
-kube-system   coredns-d798c9dd-9cqtf                    1/1     Running     0          7m2s
+kube-system          metrics-server-6d684c7b5-7qnvd            1/1     Running     0          7m6s
 
-kube-system   helm-install-traefik-5gcv7                0/1     Completed   2          7m2s
+kube-system          helm-install-traefik-9brf9                0/1     Completed   2          7m5s
 
-kube-system   svclb-traefik-pq5df                       2/2     Running     0          6m36s
+kube-system          svclb-traefik-49stj                       2/2     Running     0          6m28s
 
-kube-system   svclb-traefik-xlvp7                       2/2     Running     0          6m36s
+kube-system          svclb-traefik-7xx69                       2/2     Running     0          6m28s
 
-kube-system   svclb-traefik-9xhw2                       2/2     Running     0          6m36s
+kube-system          svclb-traefik-rg75h                       2/2     Running     0          6m28s
 
-kube-system   svclb-traefik-tvmwb                       2/2     Running     0          6m36s
+kube-system          svclb-traefik-rjb5m                       2/2     Running     0          6m28s
 
-kube-system   svclb-traefik-7p58r                       2/2     Running     0          6m36s
+kube-system          svclb-traefik-fc6pw                       2/2     Running     0          6m28s
 
-kube-system   traefik-6787cddb4b-tmx42                  1/1     Running     0          6m36s
+kube-system          traefik-6787cddb4b-zfbqv                  1/1     Running     0          6m29s
+
+local-path-storage   local-path-provisioner-8db6b8556-j2f7w    1/1     Running     0          5s
+
+
 $ sudo kubectl get pod -n kube-system -o wide
 
 NAME                                      READY   STATUS      RESTARTS   AGE     IP          NODE                NOMINATED NODE   READINESS GATES
