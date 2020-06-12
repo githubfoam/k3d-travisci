@@ -4,21 +4,36 @@ dist: bionic
 notifications:
   slack:
     on_failure: always
+# fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
+#       script:
+#         - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
+#         - k3d version
+#         - k3d check-tools #Check if docker is running
+#         - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --workers 3 #Create a single- or multi-node k3s cluster in docker containers
+#         - docker ps
+#         - k3d list clusters
+#         - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
+#         - cat $KUBECONFIG
+#         - sudo kubectl get nodes
+#         - sudo kubectl cluster-info
+#         - sudo kubectl get pods --all-namespaces
+#         #Add local storage
+#         - sudo kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+#         - kubectl get storageclass
+
 fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
       script:
         - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
         - k3d version
         - k3d check-tools #Check if docker is running
-        - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --workers 3 #Create a single- or multi-node k3s cluster in docker containers
+        - sudo k3d create
         - docker ps
         - k3d list clusters
-        - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
+        - export KUBECONFIG="$(k3d get-kubeconfig)"
         - cat $KUBECONFIG
         - sudo kubectl get nodes
         - sudo kubectl cluster-info
-        #Add local storage
-        - sudo kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-        - kubectl get storageclass
+        - sudo kubectl get pods --all-namespaces
         ###################### app1 ######################
         # - sudo kubectl get pods --all-namespaces
         # #Add local storage
