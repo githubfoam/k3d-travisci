@@ -1,192 +1,31 @@
 ---
 sudo: required
 dist: bionic
-
 notifications:
   slack:
     on_failure: always
-
-
+fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
+      script:
+        - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
+        - k3d version
+        - k3d check-tools #Check if docker is running
+        - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --workers 3 #Create a single- or multi-node k3s cluster in docker containers
+        - docker ps
+        - k3d list clusters
+        - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
+        - cat $KUBECONFIG
+        - sudo kubectl get nodes
+        - sudo kubectl cluster-info
 fleet_script_tasks : &fleet_script_tasks
       script:
         - python --version
 fleet_install_tasks : &fleet_install_tasks
       install:
         - pip install -r requirements.txt
-
-
 matrix:
   fast_finish: true
   include:
-
-
-    # - name: "MetalLB loadbalancer k3d  Python 3.7 on bionic amd64" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-    #     - sudo k3d -v
-    #     - sudo k3d create --api-port 6550 --publish 8081:80 --workers 3 #Create cluster (3 workers)
-    #     - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='k3s-default')"
-    #     - echo $KUBECONFIG
-    #     - sudo k3d list
-    #     # - curl https://localhost:6550 #Kubernetes master is running at
-    #     # - curl https://localhost:6550/api/v1/namespaces/kube-system/services/kube-dns/proxy #CoreDNS is running at
-    #     - sudo kubectl  get nodes
-    #     # Deploy MetalLB
-    #     - sudo kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
-    #     - export externalIPoftraefikservice="$(sudo kubectl get svc -n kube-system | grep traefik | awk '{ print $4 }')"
-    #     - echo $externalIPoftraefikservice
-    #     - cat metal-lb-layer2-config.yaml
-    #     - sudo k3d list
-    #     #Create a deployment/service/ingress on k3d
-    #     # - kbc create deployment nginx --image=nginx
-    #     # - kbc create service clusterip nginx --tcp=80:80
-    #     # - kbc apply -f yaml/k3d/ingress.yaml
-    #     # - curl localhost:8081 #test the service
-    #   after_success:
-    #     - kbc delete deployment nginx
-    #     - kbc delete service nginx
-    #     - kbc delete ingress nginx
-    #     - deactivate
-
-#     - name: "multipass k3d Python 3.7 on bionic amd64" #OK
-#       os: linux
-#       dist: bionic
-#       arch: amd64
-#       addons:
-#         snaps:
-#           - name: multipass
-#             confinement: classic # or devmode
-#             channel: latest/stable # will be passed to --channel flag
-#       language: python
-#       python: 3.7
-#       before_install:
-#         - pip3 install virtualenv
-#         - virtualenv -p $(which python3) ~venvpy3
-#         - source ~venvpy3/bin/activate
-#       <<: *fleet_install_tasks
-#       <<: *fleet_script_tasks
-#       script:
-#         - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-#         - sudo k3d create --api-port 6550 --publish 8081:80 --workers 3 #Create cluster (2 workers)
-#         - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='k3s-default')"
-#         - echo $KUBECONFIG
-#         - alias kbc=kubectl
-#         - curl https://localhost:6550 #Kubernetes master is running at
-#         - curl https://localhost:6550/api/v1/namespaces/kube-system/services/kube-dns/proxy #CoreDNS is running at
-#         - sudo kbc get nodes
-#         #Create a deployment/service/ingress on k3d
-#         - kbc create deployment nginx --image=nginx
-#         - kbc create service clusterip nginx --tcp=80:80
-#         - kbc apply -f yaml/k3d/ingress.yaml
-#         - curl localhost:8081 #test the service
-#       after_success:
-#         - kbc delete deployment nginx
-#         - kbc delete service nginx
-#         - kbc delete ingress nginx
-#         - deactivate
-
-    # - name: "part1 k3d latest release multi master container runtime(docker)  TAG=v3.0.0-rc.2 bash  Python 3.7 on bionic amd64" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       - name: kubectl
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     # - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
-    #     - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | TAG=v3.0.0-rc.3 bash" # grab a specific release (via TAG environment variable)
-    #     # - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-    #     - k3d --help
-    #     - k3d create --help
-    #     - k3d create cluster --help
-    #     - k3d get --help
-    #     - k3d version
-    #     # - sudo k3d create cluster multidemo --verbose   --wait --timeout 360s  --runtime docker --api-port localhost:6444 --port 8080:80 --server-arg --tls-san="127.0.0.1"  --masters 3 --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-    #     # - sudo k3d create cluster multidemo --verbose   --wait --timeout 360s  --runtime docker --api-port localhost:6444 --masters 3 --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-    #     - sudo k3d create cluster multidemo --verbose  --masters 3 --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-    #     - docker ps
-    #     # - k3d --verbose create
-    #     # - k3d list clusters
-    #     # - lsof -i
-    #     # - sudo k3d get-kubeconfig --alls
-    #     # - sudo k3d get-kubeconfig --name demo
-    #     - export KUBECONFIG="$(sudo k3d get kubeconfig multidemo)"
-    #     - cat $KUBECONFIG
-    #     - sudo kubectl get nodes
-    #     - sudo kubectl cluster-info
-    #   after_success:
-    #     - deactivate
-
-    # - name: "part1 k3d latest release multi master container runtime(containerd)  TAG=v3.0.0-rc.2 bash  Python 3.7 on bionic amd64" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       - name: kubectl
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     # - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
-    #     - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | TAG=v3.0.0-rc.2 bash" # grab a specific release (via TAG environment variable)
-    #     # - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-    #     - k3d version
-    #     # - sudo k3d --verbose  create cluster --wait --timeout 360 --name multidemo --runtime containerd --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --masters 3 --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-    #     - sudo k3d create cluster multidemo --verbose   --wait --timeout 360s  --runtime containerd --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --masters 3 --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-    #     - docker ps
-    #     # - k3d --verbose create
-    #     - k3d list clusters
-    #     # - lsof -i
-    #     - sudo k3d get-kubeconfig --all
-    #     # - sudo k3d get-kubeconfig --name demo
-    #     - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='multidemo')"
-    #     - cat $KUBECONFIG
-    #     - sudo kubectl get nodes
-    #     - sudo kubectl cluster-info
-    #   after_success:
-    #     - deactivate
-
-    - name: "part1 k3d latest release single master  Python 3.7 on bionic amd64" #OK
+    - name: "k3d single master  Python 3.7 on bionic amd64"
       os: linux
       dist: bionic
       arch: amd64
@@ -206,342 +45,215 @@ matrix:
         - source ~venvpy3/bin/activate
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      script:
-        - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
-        # - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | TAG=v3.0.0-rc.2 bash" # grab a specific release (via TAG environment variable)
-        # - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-        - k3d version
-        - k3d check-tools #Check if docker is running
-        # - sudo k3d create cluster --name demo --masters 3 --workers 3
-        # - sudo k3d create cluster --name demo --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-        - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --workers 3 #Create a single- or multi-node k3s cluster in docker containers
-        # - sudo k3d --timestamp --verbose create --wait 360 -n demo -w 2 -a 6550 --image rancher/k3s:v0.7.0 && export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
-        # - sudo k3d c --wait 0 && k3d get-kubeconfig
-        - docker ps
-        # - k3d --verbose create
-        - k3d list clusters
-        # - lsof -i
-        # - sudo k3d get-kubeconfig --all
-        # - sudo k3d get-kubeconfig --name demo
-        - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
-        - cat $KUBECONFIG
-        # - |
-        #   while :
-        #   do
-        #       status=$(sudo multipass ls | grep "$VM_NAME"  |  awk '{print $2}')
-        #       [ ! $status = "Running"  ] || break
-        #       sleep 5
-        #       echo "Waiting $VM_NAME VM to be running"
-        #   done
-        # - alias kbc=kubectl
-        # - sudo kbc get nodes
-        - sudo kubectl get nodes
-        - sudo kubectl cluster-info
+      <<: *fleet_k3d_singlemaster_tasks
       after_success:
         - deactivate
-
-    #
-    #
-    # - name: "part2  Python 3.7 on bionic amd64" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       - name: kubectl
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-    #     - k3d version
-    #     # - sudo k3d create cluster demo --masters 2 --api-port 6550 --publish 8081:80 --workers 3 #Create cluster (2 workers)
-    #     # - docker ps
-    #     # - k3d get clusters
-    #     # # - sudo k3d create --name cicd -p 9000:80 --workers 2  #Create cluster (2 workers) start k3s cluster
-    #     # # - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='cicd')"
-    #     # # - sudo k3d get config demo --switch
-    #     # - export KUBECONFIG="$(sudo k3d get kubeconfig --name='demo')"
-    #     # - cat $KUBECONFIG
-    #     # - sudo alias kbc=kubectl
-    #     # - sudo kbc get nodes
-    #     # - curl https://localhost:6550 #Kubernetes master is running at
-    #     # - curl https://localhost:6550/api/v1/namespaces/kube-system/services/kube-dns/proxy #CoreDNS is running at
-    #     # - sudo kubectl get nodes
-    #     # - docker ps --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
-    #     # #Enable k8s dashboard, non-ssl dashboard
-    #     # - sudo kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/alternative.yaml
-    #     # #create path based ingress rather than use kubectl proxy
-    #     # - sudo kubectl apply -f dashboard.yaml
-    #     # - sudo kubectl apply -f dashboardrole.yaml
-    #     # - curl http://localhost:9000/kubernetes-dashboard/ #Access dashboard with token of deafult user
-    #     # #get token
-    #     # - sudo kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep default | awk '{print $1}') | grep token
-    #     # #install gitea
-    #     # - sudo helm repo add k8s-land https://charts.k8s.land # 3rd party not official chart
-    #     # - sudo helm repo add drone https://charts.drone.io # official drone chart
-    #     # - sudo kubectl create namespace drone
-    #     # - sudo helm install --namespace drone -f gitea-values.yaml gitea k8s-land/gitea
-    #     # - sudo kubectl apply -f gitea-service.yaml #create service for drone to access
-    #     # #add traefik cluster ip to /etc/hosts to resolve gitea and drone
-    #     # - echo "$(k get svc traefik -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\tgitea" | sudo tee -a /etc/hosts
-    #     # - echo "$(k get svc traefik -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\tdrone" | sudo tee -a /etc/hosts
-    #     # #access http://gitea
-    #     # #drone & runners
-    #     # - sudo helm install --namespace drone drone drone/drone -f drone.yaml
-    #     # - kubectl apply -f droneingress.yaml #creat ingress for drone , not configured in helm chart
-    #     # #install drone runner before running a job
-    #     # - helm install --namespace drone drone-runner-kube drone/drone-runner-kube -f dronerunner.yaml
-    #     # #verify helm installation
-    #     # - sudo helm list -n drone
-    #     # # verify service deployed
-    #     # - sudo kubectl get svc -n drone
-    #     # # verify endpoints deployed
-    #     # - sudo kubectl get endpoints -n drone
-    #     # # verify ingress created
-    #     # - sudo  kubectl get ingresses.extensions -n drone
-    #     # # verify pods
-    #     # - sudo kubectl get po -n drone
-    #     # #Trouble shooting
-    #     # - sudo kubectl get events -A -w
-    #     # - sudo kubectl logs
-    #     # # - sudo kubectl run -it --rm --restart=Never busybox --image=busybox:1.28 -- nslookup $YOUR_DNS_NAME_WITH_NAMESPACE #Kube DNS check
-    #     # - sudo kubectl describe svc & kubectl describe endpoint
-    #     # #logon to the k3s instance (docker), k3s is not using docker but containerd(crictl)
-    #     # - sudo docker exec -ti k3d-cicd-server /bin/sh and docker exec -ti k3d-cicd-worker-0 /bin/sh
-    #     # # Access http://drone
-    #     # # #Create a deployment/service/ingress on k3d
-    #     # # - kbc create deployment nginx --image=nginx
-    #     # # - kbc create service clusterip nginx --tcp=80:80
-    #     # # - kbc apply -f yaml/k3d/ingress.yaml
-    #     # # - curl localhost:8081 #test the service
-    #   after_success:
-    #     - deactivate
-
-    # - name: "part3  Python 3.7 on bionic amd64" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       - name: kubectl
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       - name: helm
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     - docker --version
-    #     - sudo kubectl version --short
-    #     - helm version --short
-    #     - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
-    #     - k3d version
-        # - sudo k3d create --name cicd -p 9000:80 --workers 2  #Create cluster (2 workers) start k3s cluster
-        # - sudo k3d create cluster cicd --masters 2 -p 9000:80 --workers 3 #Create cluster (2 workers)
-        # - docker ps
-        # - k3d get clusters
-        # # - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='cicd')"
-        # - export KUBECONFIG="$(sudo k3d get kubeconfig --name='cicd')"
+    - name: "k3d single master  Python 3.7 on xenial amd64"
+      os: linux
+      dist: xenial
+      arch: amd64
+      addons:
+        snaps:
+          - name: multipass
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+          - name: kubectl
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      <<: *fleet_k3d_singlemaster_tasks
+      after_success:
+        - deactivate
+#============================================================================ multiarch linux ============================================================================
+    - name: "k3d single master  Python 3.7 on bionic arm64"
+      os: linux
+      dist: bionic
+      arch: arm64
+      addons:
+        snaps:
+          - name: multipass
+            confinement: classic # or devmode
+            channel: latest/beta # will be passed to --channel flag
+          - name: kubectl
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
+      script:
+        - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
+        - k3d version
+        - k3d check-tools #Check if docker is running
+        - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --workers 3 #Create a single- or multi-node k3s cluster in docker containers
+        - docker ps
+        - k3d list clusters
+        - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
         # - cat $KUBECONFIG
-        # - sudo alias kbc=kubectl
-        # - sudo kbc get nodes
-        # - curl https://localhost:6550 #Kubernetes master is running at
-        # - curl https://localhost:6550/api/v1/namespaces/kube-system/services/kube-dns/proxy #CoreDNS is running at
         # - sudo kubectl get nodes
-        # - docker ps --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
-        # #Enable k8s dashboard, non-ssl dashboard
-        # - sudo kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/alternative.yaml
-        # #create path based ingress rather than use kubectl proxy
-        # - sudo kubectl apply -f dashboard.yaml
-        # - sudo kubectl apply -f dashboardrole.yaml
-        # - curl http://localhost:9000/kubernetes-dashboard/ #Access dashboard with token of deafult user
-        # #get token
-        # - sudo kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep default | awk '{print $1}') | grep token
-        # #install gitea
-        # - sudo helm repo add k8s-land https://charts.k8s.land # 3rd party not official chart
-        # - sudo helm repo add drone https://charts.drone.io # official drone chart
-        # - sudo kubectl create namespace drone
-        # - sudo helm install --namespace drone -f gitea-values.yaml gitea k8s-land/gitea
-        # - sudo kubectl apply -f gitea-service.yaml #create service for drone to access
-        # #add traefik cluster ip to /etc/hosts to resolve gitea and drone
-        # - echo "$(k get svc traefik -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\tgitea" | sudo tee -a /etc/hosts
-        # - echo "$(k get svc traefik -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')\tdrone" | sudo tee -a /etc/hosts
-        # #access http://gitea
-        # #drone & runners
-        # - sudo helm install --namespace drone drone drone/drone -f drone.yaml
-        # - kubectl apply -f droneingress.yaml #creat ingress for drone , not configured in helm chart
-        # #install drone runner before running a job
-        # - helm install --namespace drone drone-runner-kube drone/drone-runner-kube -f dronerunner.yaml
-        # #verify helm installation
-        # - sudo helm list -n drone
-        # # verify service deployed
-        # - sudo kubectl get svc -n drone
-        # # verify endpoints deployed
-        # - sudo kubectl get endpoints -n drone
-        # # verify ingress created
-        # - sudo  kubectl get ingresses.extensions -n drone
-        # # verify pods
-        # - sudo kubectl get po -n drone
-        # #Trouble shooting
-        # - sudo kubectl get events -A -w
-        # - sudo kubectl logs
-        # # - sudo kubectl run -it --rm --restart=Never busybox --image=busybox:1.28 -- nslookup $YOUR_DNS_NAME_WITH_NAMESPACE #Kube DNS check
-        # - sudo kubectl describe svc & kubectl describe endpoint
-        # #logon to the k3s instance (docker), k3s is not using docker but containerd(crictl)
-        # - sudo docker exec -ti k3d-cicd-server /bin/sh and docker exec -ti k3d-cicd-worker-0 /bin/sh
-        # # Access http://drone
-        # # #Create a deployment/service/ingress on k3d
-        # # - kbc create deployment nginx --image=nginx
-        # # - kbc create service clusterip nginx --tcp=80:80
-        # # - kbc apply -f yaml/k3d/ingress.yaml
-        # # - curl localhost:8081 #test the service
-      # after_success:
-      #   - deactivate
-
-    # - name: "multipass rio Python 3.7 on bionic amd64" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     - 'curl -sfL https://get.rio.io | sh -' #Get rio
-    #     - sudo rio install
-    #     - sudo rio info
-    #     - sudo rio run https://github.com/rancher/rio-demo #Create a first app on rio
-    #     - sudo rio ps
-        # - curl https://admiring-northcutt7-default.4g4n4g.on-rio.io:9443 # test the app
-        # #Staging / blue / green
-        # - sudo rio run ibuildthecloud/demo:blue #stage blue version
-        # - sudo rio ps #check blue endpoint
-        # - curl https://epic-almeida5-default.4g4n4g.on-rio.io:9443 #another endpoint
-        # - sudo rio revision #check revisions,two endpoints
-        # #update the image ,serve by green version
-        # - sudo rio stage --image ibuildthecloud/demo:green default/epic-almeida5:v1 #stage green version
-        # - sudo rio revision #check revisions,two endpoints
-        # - curl  https://epic-almeida5-v1-default.4g4n4g.on-rio.io:9443 #another endpoint
-        # #promoting staged revision
-        # - sudo rio promote default/epic-almeida5:v1 #promote the revision to serve the traffic for gradual traffic shifting
-      # after_success:
-      #   - kbc delete deployment nginx
-      #   - kbc delete service nginx
-      #   - k delete ingress nginx
-      #   - deactivate
-
-
-# # # #============================================================================ multiarch linux ============================================================================
-#
-#     - name: "multipass beta channel k3s Python 3.7 on bionic arm64" #OK
-#       os: linux
-#       dist: bionic
-#       arch: arm64
-#       addons:
-#         snaps:
-#           - name: multipass
-#             confinement: classic # or devmode
-#             channel: latest/beta # will be passed to --channel flag
-#       language: python
-#       python: 3.7
-#       before_install:
-#         - pip3 install virtualenv
-#         - virtualenv -p $(which python3) ~venvpy3
-#         - source ~venvpy3/bin/activate
-#       <<: *fleet_install_tasks
-#       <<: *fleet_script_tasks
-#       script:
-#         - egrep -c '(vmx|svm)' /proc/cpuinfo | echo "virtualization is  supported" | echo "virtualization is not supported"
-#         - sudo apt-get install -qqy cpu-checker #kvm-ok
-#         - sudo kvm-ok #check whether the KVM is installed
-#         - sudo apt-get install -qqy qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
-#       after_success:
-#         - deactivate
-
-
-# # =============================================macOS=============================================
-#
-#     #The default backend on macOS is hyperkit, wrapping Apple’s Hypervisor.framework
-#     #You need macOS Yosemite, version 10.10.3 or later installed on a 2010 or newer Mac
-#     #https://docs.travis-ci.com/user/reference/osx/#macos-version
-#     # https://multipass.run/docs/installing-on-macos
-#     # https://brew.sh/
-#     - name: "multipass on macOS 10.15.4 osx xcode11.5"
-#       os: osx
-#       osx_image: #installer: Error - Your CPU does not have the features necessary for Multipass. Installation cannot proceed
-#         - xcode11.5
-#       language: shell
-#       before_install:
-#         - pip install virtualenv
-#         - virtualenv -p $(which python2) ~venvpy2
-#         - source ~venvpy2/bin/activate
-#       <<: *fleet_install_tasks
-#       <<: *fleet_script_tasks
-#       script:
-#         - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-#         # - brew cask install multipass
-#         # - multipass version
-#         # - brew list --versions
-#       after_success:
-#         # - brew cask uninstall multipass
-#         - deactivate
-#
-#
-#
-#
-#
-# # # #   # =============================================windows=============================================
-#
-# #Multipass defaults to using Hyper-V as it’s virtualization provider
-# # https://multipass.run/docs/installing-on-windows
-# #https://github.com/canonical/multipass/releases
-# #https://github.com/canonical/multipass
-#     - name: "multipass  Python 3.8 on Windows"
-#       os: windows
-#       language: shell
-#       env:
-#         - PATH=/c/Python38:/c/Python38/Scripts:$PATH
-#       before_install:
-#         - choco install python --version 3.8.1
-#         - pip install virtualenv
-#         - virtualenv $HOME/venv
-#         - source $HOME/venv/Scripts/activate
-#       <<: *fleet_install_tasks
-#       <<: *fleet_script_tasks
-#       script:
-#         # - echo "choco install multipass" #- multipass (exited -1) - Error while running 'C:\ProgramData\chocolatey\lib\multipass\tools\chocolateyinstall.ps1'
-#         - choco install wget
-#         - wget https://github.com/canonical/multipass/releases/download/v1.2.1/multipass-1.2.1+win-win64.exe
-#         - dir
-#       after_success:
-#         - deactivate
+        # - sudo kubectl cluster-info
+      after_success:
+        - deactivate
+    - name: "k3d single master  Python 3.7 on xenial arm64"
+      os: linux
+      dist: xenial
+      arch: arm64
+      addons:
+        snaps:
+          - name: multipass
+            confinement: classic # or devmode
+            channel: latest/edge # will be passed to --channel flag
+          - name: kubectl
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
+      script:
+        - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
+        - k3d version
+        - k3d check-tools #Check if docker is running
+        # - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --api-port localhost:6444 --publish 8080:80 --server-arg --tls-san="127.0.0.1"  --workers 3 #Create a single- or multi-node k3s cluster in docker containers
+        # - docker ps
+        # - k3d list clusters
+        # - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
+        # - cat $KUBECONFIG
+        # - sudo kubectl get nodes
+        # - sudo kubectl cluster-info
+      after_success:
+        - deactivate
+    - name: "k3d single master Python 3.7 on bionic ppc64le" #No prebuilt binary for linux-ppc64le.
+      os: linux
+      arch: ppc64le
+      dist: bionic
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
+      after_success:
+        - deactivate
+    - name: "k3d single master Python 3.7 on bionic s390x" #No prebuilt binary for linux-s390x
+      os: linux
+      arch: s390x
+      dist: bionic
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
+      after_success:
+        - deactivate
+    - name: "k3d single master Python 3.7 on xenial ppc64le" #No prebuilt binary for linux-ppc64le
+      os: linux
+      arch: ppc64le
+      dist: xenial
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
+      after_success:
+        - deactivate
+    - name: "k3d single master Python 3.7 on xenial s390x" #No prebuilt binary for linux-s390x
+      os: linux
+      arch: s390x
+      dist: xenial
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
+      after_success:
+        - deactivate
+# =============================================macOS=============================================
+    #The default backend on macOS is hyperkit, wrapping Apple’s Hypervisor.framework
+    #You need macOS Yosemite, version 10.10.3 or later installed on a 2010 or newer Mac
+    #https://docs.travis-ci.com/user/reference/osx/#macos-version
+    # https://multipass.run/docs/installing-on-macos
+    # https://brew.sh/
+    - name: "multipass on macOS 10.15.4 osx xcode11.5"
+      os: osx
+      osx_image: #installer: Error - Your CPU does not have the features necessary for Multipass. Installation cannot proceed
+        - xcode11.5
+      language: shell
+      addons:
+        homebrew:
+          packages:
+          - kubectl
+          - kubernetes-cli
+          - helm
+          update: true
+      before_install:
+        - pip install virtualenv
+        - virtualenv -p $(which python2) ~venvpy2
+        - source ~venvpy2/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      script:
+        # - brew cask install multipass
+        # - multipass version
+        - brew list --versions
+        - kubectl version --client
+      after_success:
+        # - brew cask uninstall multipass
+        - deactivate
+# # #   # =============================================windows=============================================
+      #Multipass defaults to using Hyper-V as it’s virtualization provider
+      # https://multipass.run/docs/installing-on-windows
+      #https://github.com/canonical/multipass/releases
+      #https://github.com/canonical/multipass
+    - name: "multipass  Python 3.8 on Windows"
+      os: windows
+      language: shell
+      env:
+        - PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      before_install:
+        - choco install python --version 3.8.1
+        - pip install virtualenv
+        - virtualenv $HOME/venv
+        - source $HOME/venv/Scripts/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      script:
+        - choco install kubernetes-helm
+        - choco install kubernetes-cli
+        - choco install wget
+        - wget https://github.com/canonical/multipass/releases/download/v1.2.1/multipass-1.2.1+win-win64.exe
+        - dir
+      after_success:
+        - deactivate
