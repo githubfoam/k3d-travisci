@@ -1,0 +1,6 @@
+apiVersion: v2
+name: flask-helm-example
+description: A sample Helm chart for a Flask application
+type: application
+appVersion: 1.16.0
+version: 0.0.1

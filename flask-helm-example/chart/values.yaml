@@ -1,0 +1,8 @@
+version: latest
+registry: registry.hub.docker.com/helm/flask-helm-example
+host: youre-host.com
+path: /
+tls:
+    enabled: true
+    certificate: your-certname
+reload: false

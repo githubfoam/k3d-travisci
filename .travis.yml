@@ -97,10 +97,28 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
           done
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get pods --namespace=local-path-storage
+        #Local Docker Registry
+        - echo "127.0.0.1 registry.local" |sudo tee -a /etc/hosts
+        # build and push docker image
+        - docker build . -t flask-helm-example:latest --network host
+        - docker tag flask-helm-example:latest registry.local:5000/flask-helm-example
+        - docker push registry.local:5000/flask-helm-example
+        # start the helm chart with local values
+        - helm install flask-helm-example -f devvalues.yaml ./chart
+        - curl http://localhost:8080/flask-helm-example
+        - |
+          url="https://localhost:6443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy"
+          if curl --output /dev/null --silent --head --fail "$url"; then
+          echo "Metrics-server is running at $url"
+          else
+          echo "URL does not exist: $url"
+          fi      
+        # - helm uninstall <name>
+        # - helm status <name>
         #Setting up Helm
-        - helm list
-        - sudo kubectl -n kube-system create serviceaccount tiller
-        - sudo kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+        # - helm list
+        # - sudo kubectl -n kube-system create serviceaccount tiller
+        # - sudo kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
         # - sudo helm init --service-account tiller
         # - helm ls
         # - helm repo update
