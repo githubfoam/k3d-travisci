@@ -24,10 +24,14 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - helm list
         - sudo kubectl -n kube-system create serviceaccount tiller
         - sudo kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-        - sudo helm init --service-account tiller
+        # - sudo helm init --service-account tiller
         - helm list
-        - helm search sonarqube
+        - helm repo update
+        - helm search sonarqube -l
+        - helm list sonar
         - sudo helm install stable/sonarqube
+        - kubectl get pods -n sonarqube
+        # - kubectl exec -it sonar-sonarqube-6ff4554ff4-4f7p2 bash
         - helm list
         # app1
 fleet_script_tasks : &fleet_script_tasks
