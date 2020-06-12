@@ -104,6 +104,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - pushd $(pwd) && cd flask-helm-example
         - docker build . -t flask-helm-example:latest --network host
         - docker tag flask-helm-example:latest registry.local:5000/flask-helm-example
+        - sudo netstat -tlpen | grep 8080
         - docker push registry.local:5000/flask-helm-example
         # start the helm chart with local values
         - helm install flask-helm-example -f devvalues.yaml ./chart
