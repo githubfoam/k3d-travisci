@@ -39,8 +39,8 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo kubectl get service --all-namespaces
         - sudo kubectl cluster-info
         - |
-          for i in {1..60}; do # Timeout after 5 minutes, 60x1=60 secs
-              if sudo kubectl get nodes | awk '{print $2}' | grep Ready ; then
+          for i in {1..60}; do # Timeout after 5 minutes, 60x5= 5 mins
+              if [[ $(sudo kubectl get nodes | awk '{print $1}') == "*helm-install-traefik-*" ]] && [[ $(sudo kubectl get nodes | awk '{print $4}') == "Running" ]]; then
                 break
               fi
               sleep 5
@@ -69,7 +69,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - helm list
         - sudo kubectl -n kube-system create serviceaccount tiller
         - sudo kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-        - sudo helm init --service-account tiller
+        # - sudo helm init --service-account tiller
         # - helm ls
         # - helm repo update
         # - helm search sonarqube
