@@ -39,11 +39,25 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo kubectl get service --all-namespaces
         - sudo kubectl cluster-info
         - |
-          for i in {1..60}; do # Timeout after 5 minutes, 60x5= 5 mins
-              if [[ $(sudo kubectl get nodes | awk '{print $1}') == "*helm-install-traefik-*" ]] && [[ $(sudo kubectl get nodes | awk '{print $4}') == "Running" ]]; then
+          url="https://localhost:6443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy"
+          if curl --output /dev/null --silent --head --fail "$url"; then
+          echo "Metrics-server is running at $url"
+          else
+          echo "URL does not exist: $url"
+          fi
+        - |
+          for i in {1..60}; do # Timeout after 5 minutes, 60x1=60 secs
+              if nc -z -v 127.0.0.1 6443 2>&1 | grep succeeded ; then
                 break
               fi
               sleep 5
+          done
+        - |
+          for i in {1..60}; do # Timeout after 5 minutes, 60x7= 7 mins
+              if [[ $(sudo kubectl get nodes | awk '{print $1}') == "*helm-install-traefik-*" ]] && [[ $(sudo kubectl get nodes | awk '{print $4}') == "Running" ]]; then
+                break
+              fi
+              sleep 7
           done
         - |
           echo "Waiting for Kubernetes to be ready ..."
