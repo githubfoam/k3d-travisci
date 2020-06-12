@@ -32,11 +32,12 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
         - cat $KUBECONFIG
         - sudo kubectl get nodes
-        # - sudo kubectl get pods --namespace=kube-system
         - sudo kubectl get pod -o wide
+        - sudo kubectl get pod -n kube-system -o wide
+        - sudo kubectl get pod -n default -o wide
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get service --all-namespaces
-        - sudo kubectl get nodes --all-namespaces --show-label #list all labels
+        - sudo kubectl cluster-info
         - |
           for i in {1..60}; do # Timeout after 5 minutes, 60x1=60 secs
               if sudo kubectl get nodes | awk '{print $2}' | grep Ready ; then
@@ -53,11 +54,11 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
               sleep 2
           done
         - sudo kubectl get nodes
-        # - sudo kubectl get pods --namespace=kube-system
         - sudo kubectl get pod -o wide
+        - sudo kubectl get pod -n kube-system -o wide
+        - sudo kubectl get pod -n default -o wide
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get service --all-namespaces
-        - sudo kubectl get nodes --all-namespaces --show-label #list all labels
         - sudo kubectl cluster-info
         ###################### app1 ######################
         #Add local storage
