@@ -8,9 +8,6 @@ Travis (.com)  branch:
 k3d is a utility designed to easily run K3s in Docker.
 https://rancher.com/docs/k3s/latest/en/advanced/#running-k3d-k3s-in-docker-and-docker-compose
 
-
-
-
 use the install script to grab the latest release:
 
     wget: wget -q -O - https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
