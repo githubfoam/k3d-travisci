@@ -99,7 +99,9 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo kubectl get pods --namespace=local-path-storage
         #Local Docker Registry
         - echo "127.0.0.1 registry.local" |sudo tee -a /etc/hosts
+        - sudo cat /etc/hosts
         # build and push docker image
+        - pushd $(pwd)
         - docker build . -t flask-helm-example:latest --network host
         - docker tag flask-helm-example:latest registry.local:5000/flask-helm-example
         - docker push registry.local:5000/flask-helm-example
@@ -112,7 +114,8 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
           echo "Metrics-server is running at $url"
           else
           echo "URL does not exist: $url"
-          fi      
+          fi
+        - popd
         # - helm uninstall <name>
         # - helm status <name>
         #Setting up Helm
