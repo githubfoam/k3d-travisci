@@ -4,7 +4,7 @@ dist: bionic
 notifications:
   slack:
     on_failure: always
-fleet_k3d_singlemaster_app1_tasks : &fleet_k3d_singlemaster_app1_tasks
+fleet_app1_tasks : &fleet_app1_tasks
       script:
         # app1
         - sudo kubectl get pods --all-namespaces
@@ -77,7 +77,7 @@ matrix:
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
       <<: *fleet_k3d_singlemaster_tasks
-      <<: *fleet_k3d_singlemaster_app1_tasks
+      <<: *fleet_app1_tasks
       after_success:
         - deactivate
     # - name: "k3d single master  Python 3.7 on bionic amd64"
