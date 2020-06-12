@@ -29,15 +29,16 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo k3d create
         - docker ps
         - k3d list clusters
-        - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='k3s-default')"
+        - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
         - cat $KUBECONFIG
         - sudo kubectl get nodes
         - sudo kubectl cluster-info
         - sudo kubectl get pods --all-namespaces
         ###################### app1 ######################
-        - sudo kubectl get pods --all-namespaces
         #Add local storage
         - sudo kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+        - sudo kubectl get storageclass
+        - sudo kubectl get pods --all-namespaces
         #Setting up Helm
         - helm list
         - sudo kubectl -n kube-system create serviceaccount tiller
