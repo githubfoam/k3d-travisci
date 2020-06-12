@@ -102,8 +102,8 @@ matrix:
         - k3d list clusters
         - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
         # - cat $KUBECONFIG
-        - sudo kubectl get nodes
-        - sudo kubectl cluster-info
+        # - sudo kubectl get nodes
+        # - sudo kubectl cluster-info
       after_success:
         - deactivate
     - name: "k3d single master  Python 3.7 on xenial arm64"
@@ -140,7 +140,7 @@ matrix:
         # - sudo kubectl cluster-info
       after_success:
         - deactivate
-    - name: "k3d single master Python 3.7 on bionic ppc64le" #Unable to locate package osquery
+    - name: "k3d single master Python 3.7 on bionic ppc64le" #No prebuilt binary for linux-ppc64le.
       os: linux
       arch: ppc64le
       dist: bionic
@@ -152,10 +152,10 @@ matrix:
         - source ~venvpy3/bin/activate
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      <<: *fleet_k3d_singlemaster_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
       after_success:
         - deactivate
-    - name: "k3d single master Python 3.7 on bionic s390x" #Unable to locate package osquery
+    - name: "k3d single master Python 3.7 on bionic s390x" #No prebuilt binary for linux-s390x
       os: linux
       arch: s390x
       dist: bionic
@@ -167,10 +167,10 @@ matrix:
         - source ~venvpy3/bin/activate
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      <<: *fleet_k3d_singlemaster_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
       after_success:
         - deactivate
-    - name: "k3d single master Python 3.7 on xenial ppc64le" #Unable to locate package osquery
+    - name: "k3d single master Python 3.7 on xenial ppc64le" #No prebuilt binary for linux-ppc64le
       os: linux
       arch: ppc64le
       dist: xenial
@@ -182,10 +182,10 @@ matrix:
         - source ~venvpy3/bin/activate
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      <<: *fleet_k3d_singlemaster_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
       after_success:
         - deactivate
-    - name: "k3d single master Python 3.7 on xenial s390x" #Unable to locate package osquery
+    - name: "k3d single master Python 3.7 on xenial s390x" #No prebuilt binary for linux-s390x
       os: linux
       arch: s390x
       dist: xenial
@@ -197,7 +197,7 @@ matrix:
         - source ~venvpy3/bin/activate
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      <<: *fleet_k3d_singlemaster_tasks
+      # <<: *fleet_k3d_singlemaster_tasks
       after_success:
         - deactivate
 # =============================================macOS=============================================
@@ -211,6 +211,13 @@ matrix:
       osx_image: #installer: Error - Your CPU does not have the features necessary for Multipass. Installation cannot proceed
         - xcode11.5
       language: shell
+      addons:
+        homebrew:
+          packages:
+          - kubectl
+          - kubernetes-cli
+          - helm
+          update: true
       before_install:
         - pip install virtualenv
         - virtualenv -p $(which python2) ~venvpy2
@@ -220,7 +227,8 @@ matrix:
       script:
         # - brew cask install multipass
         # - multipass version
-        # - brew list --versions
+        - brew list --versions
+        - kubectl version --client
       after_success:
         # - brew cask uninstall multipass
         - deactivate
@@ -242,6 +250,8 @@ matrix:
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
       script:
+        - choco install kubernetes-helm
+        - choco install kubernetes-cli
         - choco install wget
         - wget https://github.com/canonical/multipass/releases/download/v1.2.1/multipass-1.2.1+win-win64.exe
         - dir
