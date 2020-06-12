@@ -1,6 +1,6 @@
 
 Travis (.com)  branch:
-[![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=dev)](https://travis-ci.com/githubfoam/k3d-travisci)  
+[![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=master)](https://travis-ci.com/githubfoam/k3d-travisci)  
 
 
 
