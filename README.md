@@ -118,6 +118,20 @@ Metrics-server is running at https://localhost:6443/api/v1/namespaces/kube-syste
 ~~~~
 
 ~~~~
+#Add local storage
+- sudo kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+- sudo kubectl get pods --all-namespaces
+- sudo kubectl get storageclass
+
+$ sudo kubectl get pods --all-namespaces
+
+NAMESPACE            NAME                                      READY   STATUS      RESTARTS   AGE
+
+kube-system          local-path-provisioner-58fb86bdfd-dxwfm   1/1     Running     0          7m6s
+local-path-storage   local-path-provisioner-8db6b8556-j2f7w    1/1     Running     0          5s
+~~~~
+
+~~~~
 k3d is a utility designed to easily run K3s in Docker.
 https://rancher.com/docs/k3s/latest/en/advanced/#running-k3d-k3s-in-docker-and-docker-compose
 
