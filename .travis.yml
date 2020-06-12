@@ -104,7 +104,7 @@ matrix:
         snaps:
           - name: multipass
             confinement: classic # or devmode
-            channel: latest/beta # will be passed to --channel flag
+            channel: latest/edge # will be passed to --channel flag
           - name: kubectl
             confinement: classic # or devmode
             channel: latest/stable # will be passed to --channel flag
