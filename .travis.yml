@@ -26,7 +26,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
         - k3d version
         - k3d check-tools #Check if docker is running
-        - sudo k3d create
+        - sudo k3d --timestamp --verbose  create cluster --wait 360 --name demo --workers 4
         - docker ps
         - k3d list clusters
         - export KUBECONFIG="$(sudo k3d get-kubeconfig --name='demo')"
