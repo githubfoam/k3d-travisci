@@ -82,8 +82,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get service --all-namespaces
         - sudo kubectl cluster-info
-        ###################### app1 ######################
-        #Add local storage
+        ###################### #Add local storage ######################
         - sudo kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get storageclass
@@ -97,28 +96,48 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
           done
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get pods --namespace=local-path-storage
-        #Local Docker Registry
+        ###################### #Add local storage ######################
+        ###################### #openEBS ################################
+        - sudo kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
+        - kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces
+        - kubectl get pods -n openebs -l openebs.io/component-name=openebs-localpv-provisioner #Observe localhost provisioner pod
+        - kubectl get sc #Check the storage Class
+        - |
+          echo "Waiting for local storage to be ready ..."
+          for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
+              if sudo kubectl get pods --namespace=local-path-storage | grep Running ; then
+                break
+              fi
+              sleep 5
+          done
+        - sudo kubectl get pods --all-namespaces
+        - sudo kubectl get pods --namespace=local-path-storage
+        ###################### #openEBS  ######################
+        ###################### #Local Docker Registry ##################
         - echo "127.0.0.1 registry.local" |sudo tee -a /etc/hosts
         - sudo cat /etc/hosts
+        ###################### #Local Docker Registry ##################
+        ###################### #flask-helm-example ##################
         # build and push docker image
-        - pushd $(pwd) && cd flask-helm-example
-        - docker build . -t flask-helm-example:latest --network host
-        - docker tag flask-helm-example:latest registry.local:5000/flask-helm-example
-        - sudo netstat -tlpen | grep 5000
-        - docker push registry.local:5000/flask-helm-example
-        # start the helm chart with local values
-        - helm install flask-helm-example -f devvalues.yaml ./chart
-        - sudo netstat -tlpen | grep 8080
-        - - curl http://127.0.0.1:8080/flask-helm-example
-        - curl http://localhost:8080/flask-helm-example
-        - |
-          url="https://localhost:6443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy"
-          if curl --output /dev/null --silent --head --fail "$url"; then
-          echo "Metrics-server is running at $url"
-          else
-          echo "URL does not exist: $url"
-          fi
-        - popd
+        # - pushd $(pwd) && cd flask-helm-example
+        # - docker build . -t flask-helm-example:latest --network host
+        # - docker tag flask-helm-example:latest registry.local:5000/flask-helm-example
+        # - sudo netstat -tlpen | grep 5000
+        # - docker push registry.local:5000/flask-helm-example
+        # # start the helm chart with local values
+        # - helm install flask-helm-example -f devvalues.yaml ./chart
+        # - sudo netstat -tlpen | grep 8080
+        # - - curl http://127.0.0.1:8080/flask-helm-example
+        # - curl http://localhost:8080/flask-helm-example
+        # - |
+        #   url="https://localhost:6443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy"
+        #   if curl --output /dev/null --silent --head --fail "$url"; then
+        #   echo "Metrics-server is running at $url"
+        #   else
+        #   echo "URL does not exist: $url"
+        #   fi
+        # - popd
+        ###################### #flask-helm-example ##################
         # - helm uninstall <name>
         # - helm status <name>
         #Setting up Helm
