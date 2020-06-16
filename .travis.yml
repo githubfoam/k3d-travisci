@@ -38,13 +38,14 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get service --all-namespaces
         - sudo kubectl cluster-info
-        - |
-          url="https://localhost:6443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy"
-          if curl --output /dev/null --silent --head --fail "$url"; then
-          echo "Metrics-server is running at $url"
-          else
-          echo "URL does not exist: $url"
-          fi
+        # curl: (60) SSL certificate problem: unable to get local issuer certificate
+        # - |
+        #   url="https://localhost:6443/api/v1/namespaces/kube-system/services/https:metrics-server:/proxy"
+        #   if curl --output /dev/null --silent --head --fail "$url"; then
+        #   echo "Metrics-server is running at $url"
+        #   else
+        #   echo "URL does not exist: $url"
+        #   fi
         - |
           for i in {1..60}; do # Timeout after 5 minutes, 60x1=60 secs
               if nc -z -v 127.0.0.1 6443 2>&1 | grep succeeded ; then
@@ -52,6 +53,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
               fi
               sleep 5
           done
+        - kubectl get nodes --all-namespaces # verify "*helm-install-traefik-*"
         - |
           for i in {1..60}; do # Timeout after 5 minutes, 60x7= 7 mins
               if [[ $(sudo kubectl get nodes | awk '{print $1}') == "*helm-install-traefik-*" ]] && [[ $(sudo kubectl get nodes | awk '{print $4}') == "Running" ]]; then
@@ -59,6 +61,8 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
               fi
               sleep 7
           done
+        - kubectl get nodes --all-namespaces # verify "*helm-install-traefik-*"
+        - kubectl get pods --namespace=kube-system # verify namespace=kube-system Running
         - |
           echo "Waiting for Kubernetes to be ready ..."
           for i in {1..150}; do # Timeout after 5 minutes, 150x2=300 secs
@@ -67,14 +71,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
               fi
               sleep 2
           done
-        - |
-          echo "Waiting for Kubernetes to be ready ..."
-          for i in {1..150}; do # Timeout after 5 minutes, 150x2=300 secs
-              if [[ $(sudo kubectl get pods --all-namespaces | awk '{print $1}') == "*local-path-storage*" ]] && [[ $(sudo kubectl get pods --all-namespaces | awk '{print $2}') == "Running" ]] ; then
-                break
-              fi
-              sleep 2
-          done
+        - kubectl get pods --namespace=kube-system # verify namespace=kube-system Running
         - sudo kubectl get nodes
         - sudo kubectl get pod -o wide
         - sudo kubectl get pod -n kube-system -o wide
@@ -96,6 +93,16 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
           done
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get pods --namespace=local-path-storage
+        -  kubectl get pods --all-namespaces # verify "*local-path-storage*" Running
+        - |
+          echo "Waiting for Kubernetes to be ready ..."
+          for i in {1..150}; do # Timeout after 5 minutes, 150x2=300 secs
+              if [[ $(sudo kubectl get pods --all-namespaces | awk '{print $1}') == "*local-path-storage*" ]] && [[ $(sudo kubectl get pods --all-namespaces | awk '{print $2}') == "Running" ]] ; then
+                break
+              fi
+              sleep 2
+          done
+        -  kubectl get pods --all-namespaces # verify "*local-path-storage*" Running
         ###################### #Add local storage ######################
         ###################### #openEBS ################################
         - sudo kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
