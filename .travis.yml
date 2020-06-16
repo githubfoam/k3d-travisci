@@ -59,7 +59,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
               if [[ $(sudo kubectl get nodes | awk '{print $1}') == "*helm-install-traefik-*" ]] && [[ $(sudo kubectl get nodes | awk '{print $4}') == "Running" ]]; then
                 break
               fi
-              sleep 7
+              sleep 3
           done
         - kubectl get nodes --all-namespaces # verify "*helm-install-traefik-*"
         - kubectl get pods --namespace=kube-system # verify namespace=kube-system Running
@@ -116,6 +116,14 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
                 break
               fi
               sleep 5
+          done
+        - |
+          echo "Waiting for local storage to be ready ..."
+          for i in {1..60}; do # Timeout after 2 minutes, 60x2=300 secs
+                if sudo kubectl get pods --namespace=local-path-storage | grep Running ; then
+                  break
+                fi
+                sleep 2
           done
         - sudo kubectl get pods --all-namespaces
         - sudo kubectl get pods --namespace=openebs
