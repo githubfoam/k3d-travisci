@@ -104,7 +104,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
           done
         -  kubectl get pods --all-namespaces # verify "*local-path-storage*" Running
         ###################### #Add local storage ######################
-        ###################### #openEBS ################################
+        - echo "###################### #openEBS ################################"
         - sudo kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
         - kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces
         - kubectl get pods -n openebs -l openebs.io/component-name=openebs-localpv-provisioner #Observe localhost provisioner pod
@@ -112,14 +112,14 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - |
           echo "Waiting for local storage to be ready ..."
           for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
-              if sudo kubectl get pods --namespace=local-path-storage | grep Running ; then
+              if sudo kubectl get pods --namespace=openebs -l openebs.io/component-name=openebs-localpv-provisioner | grep Running ; then
                 break
               fi
               sleep 5
           done
         - sudo kubectl get pods --all-namespaces
-        - sudo kubectl get pods --namespace=local-path-storage
-        ###################### #openEBS  ######################
+        - sudo kubectl get pods --namespace=openebs
+        - echo "###################### #openEBS ################################"
         ###################### #Local Docker Registry ##################
         - echo "127.0.0.1 registry.local" |sudo tee -a /etc/hosts
         - sudo cat /etc/hosts
