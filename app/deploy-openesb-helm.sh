@@ -1,6 +1,7 @@
 #!/bin/bash
 # openesb component list
 #https://github.com/openebs/openebs/blob/master/k8s/openebs-operator.yaml
+# https://github.com/openebs/openebs/releases
 
 echo "=============================openEBS============================================================="
 # kind create cluster --name openesb-testing
@@ -10,8 +11,8 @@ kubectl get pods --all-namespaces;
 kubectl get pods -n default;
 kubectl get pod -o wide #The IP column will contain the internal cluster IP address for each pod.
 kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces
-# kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
-kubectl apply -f https://openebs.github.io/charts/1.11.0/openebs-operator.yaml #install specific OpenEBS
+helm repo update
+helm install --namespace openebs --name openebs stable/openebs --version 1.11.0 #install specific OpenEBS
 kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces-
 kubectl get pods -n openebs -l openebs.io/component-name=openebs-localpv-provisioner #Observe localhost provisioner pod
 kubectl get sc #Check the storage Class

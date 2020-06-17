@@ -3,8 +3,10 @@ APP:="app/deploy-openesb.sh"
 
 deploy-openesb:
 	bash app/deploy-openesb.sh
+deploy-openesb-helm:
+	bash app/deploy-openesb-helm.sh
 deploy-localstorage:
-		bash app/deploy-localstorage	
+		bash app/deploy-localstorage
 deploy-istio:
 	bash app/deploy-istio.sh
 deploy-dashboard:

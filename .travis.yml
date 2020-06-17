@@ -222,8 +222,9 @@ matrix:
       # <<: *fleet_k3d_singlemaster_tasks
       script:
         - sudo make deploy-k3d
-        - sudo make deploy-localstorage
-        - sudo make deploy-openesb
+        # - sudo make deploy-localstorage
+        # - sudo make deploy-openesb
+        - sudo make deploy-openesb-helm
       after_success:
         - deactivate
     # - name: "k3d single master  Python 3.7 on bionic amd64"
