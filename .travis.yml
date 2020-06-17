@@ -128,7 +128,7 @@ fleet_k3d_singlemaster_tasks : &fleet_k3d_singlemaster_tasks
         - |
             echo "Waiting for openebs-ndm component to be ready ..."
             for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
-                if sudo kubectl get pods --namespace=openebs -l openebs.io/component-name=openebs-ndm | grep Running ; then
+                if sudo kubectl get pods --namespace=openebs -l openebs.io/component-name=openebs-ndm-operator | grep Running ; then
                   break
                 fi
                 sleep 5
