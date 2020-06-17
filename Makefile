@@ -1,10 +1,14 @@
-.PHONY: run prep
+IMAGE := alpine/fio
+APP:="app/deploy-openesb.sh"
 
-demo:
-	scripts/lifecycle.sh
-
-demo-multimaster:
-	scripts/multimaster.sh
-
-prep:
-	scripts/prep.sh
+deploy-openesb:
+	bash app/deploy-openesb.sh
+deploy-localstorage:
+		bash app/deploy-localstorage	
+deploy-istio:
+	bash app/deploy-istio.sh
+deploy-dashboard:
+	bash app/deploy-dashboard.sh
+push-image:
+	docker push $(IMAGE)
+.PHONY: deploy-openesb deploy-dashboard deploy-istio push-image
