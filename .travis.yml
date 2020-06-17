@@ -196,7 +196,7 @@ fleet_install_tasks : &fleet_install_tasks
 matrix:
   fast_finish: true
   include:
-    - name: "app1 k3d single master  Python 3.7 on bionic amd64"
+    - name: "openebs localstorage k3d single master  Python 3.7 on bionic amd64"
       os: linux
       dist: bionic
       arch: amd64
@@ -222,7 +222,7 @@ matrix:
       # <<: *fleet_k3d_singlemaster_tasks
       script:
         - sudo make deploy-k3d
-        - sudo make deploy-localstorage        
+        - sudo make deploy-localstorage
         - sudo make deploy-openesb
       after_success:
         - deactivate
