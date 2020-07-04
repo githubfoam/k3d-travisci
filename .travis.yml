@@ -14,6 +14,37 @@ fleet_install_tasks : &fleet_install_tasks
 matrix:
   fast_finish: true
   include:
+
+    - name: "openfaas k3d single master  Python 3.7 on bionic amd64"
+      os: linux
+      dist: bionic
+      arch: amd64
+      addons:
+        snaps:
+          - name: multipass
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+          - name: kubectl
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+          - name: helm
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+        - pip install -r requirements.txt
+      # <<: *fleet_install_tasks
+      # <<: *fleet_script_tasks
+      script:
+        - sudo make deploy-k3d
+        - sudo make deploy-openfaas
+      after_success:
+        - deactivate
+
     - name: "openebs localstorage k3d single master  Python 3.7 on bionic amd64"
       os: linux
       dist: bionic
@@ -45,7 +76,7 @@ matrix:
         - sudo make deploy-openesb-helm
       after_success:
         - deactivate
-        
+
     # - name: "k3d single master  Python 3.7 on bionic amd64"
     #   os: linux
     #   dist: bionic
