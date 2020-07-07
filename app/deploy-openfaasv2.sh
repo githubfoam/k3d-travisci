@@ -49,6 +49,24 @@ echo $PASSWORD | faas-cli login --password-stdin
 # print this to console using echo $PASSWORD
 echo (curl http://localhost:31112)
 
+# templates can be listed
+faas-cli template store list
+# use the golang-http template. Pull the template
+faas-cli template store pull golang-http
+# create a new function based on the template using the faas-cli new FUNCTION_NAME --lang LANG_NAME command
+faas-cli new helloworld-go-http --lang golang-http
+# the following files within the directory
+ls -lai helloworld-go-http
+cat helloworld-go-http/handler.go
+cat helloworld-go-http.yml
+
+# Add a Function
+# Pull the nodejs template
+faas-cli template store pull node
+# Create a new function and append it to the existing YAML file
+faas-cli new helloworld-node --lang node --append helloworld-go-http.yml
+
+
 `curl -sSLf https://cli.openfaas.com | sh` #install the OpenFaaS CLI
 `curl -sSLf https://dl.get-arkade.dev | sh` #install arkade
 
