@@ -1,6 +1,9 @@
 IMAGE := alpine/fio
 APP:="app/deploy-openesb.sh"
 
+deploy-chaosmesh:
+	bash app/deploy-chaosmesh.sh
+	
 deploy-openfaasv2:
 	bash app/deploy-openfaasv2.sh
 
