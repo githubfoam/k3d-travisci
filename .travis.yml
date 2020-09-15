@@ -56,13 +56,16 @@ matrix:
       osx_image: #installer: Error - Your CPU does not have the features necessary for Multipass. Installation cannot proceed
         - xcode11.5
       language: shell
-      addons:
+      addons: #https://docs.travis-ci.com/user/installing-dependencies/#installing-packages-on-macos
         homebrew:
+          casks:
+          - docker
           packages:
           - kubectl
           - kubernetes-cli
           - helm
           - k3d
+          - docker-compose
           update: true
       before_install:
         - pip install virtualenv
@@ -77,7 +80,10 @@ matrix:
         - kubectl version --client
         - k3d version
         - k3d --help
-        # - docker ps
+        - kubectl version --client
+        - docker version
+        - docker-compose version
+        - docker ps
         - k3d cluster list
         - sudo k3d cluster create demo --servers 3 --agents 3  
         - sudo k3d cluster list  
