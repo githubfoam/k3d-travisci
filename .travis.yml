@@ -60,7 +60,7 @@ matrix:
       after_success:
         - deactivate
 
-    - name: "k3d v3.0.0 single master  Python 3.7 on bionic amd64"
+    - name: "k3d v3.0.1 single master  Python 3.7 on bionic amd64"
       os: linux
       dist: bionic
       arch: amd64
@@ -84,7 +84,7 @@ matrix:
       # <<: *fleet_script_tasks
       # <<: *fleet_k3d_singlemaster_tasks
       script:
-        - sudo sh -c "curl -sSL https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v3.0.0 bash" #grab the latest release
+        - sudo sh -c "curl -sSL https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v3.0.1 bash" #grab the latest release
         - k3d version
         - k3d --help  
         - docker ps
