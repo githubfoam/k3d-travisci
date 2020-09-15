@@ -2,6 +2,17 @@
 Travis (.com)  branch:
 [![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=master)](https://travis-ci.com/githubfoam/k3d-travisci)  
 
+Travis (.com)   feature_ppc64le  branch:
+[![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=feature_ppc64le)](https://travis-ci.com/githubfoam/k3d-travisci) 
+
+Travis (.com)   feature_s390x  branch:
+[![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=feature_s390x)](https://travis-ci.com/githubfoam/k3d-travisci) 
+
+Travis (.com)   feature_windows  branch:
+[![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=feature_windows)](https://travis-ci.com/githubfoam/k3d-travisci) 
+
+Travis (.com)    feature_macos   branch:
+[![Build Status](https://travis-ci.com/githubfoam/k3d-travisci.svg?branch=feature_macos)](https://travis-ci.com/githubfoam/k3d-travisci)
 
 ~~~~
 $ docker ps
@@ -178,6 +189,8 @@ lsof -i
 ~~~~
 
 ~~~~
+
+https://github.com/rancher/k3d
 
 Kubernetes storage
 https://openebs.io
