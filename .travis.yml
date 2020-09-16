@@ -83,12 +83,12 @@ matrix:
         - k3d version
         - k3d --help
         - kubectl version --client
-        - docker version
+        # - docker version #Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
         - docker-machine --version
         - docker-compose version
-        - docker ps
-        - k3d cluster list
-        - sudo k3d cluster create demo --servers 3 --agents 3  
+        # - docker ps #Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+        # - k3d cluster list
+        # - sudo k3d cluster create demo --servers 3 --agents 3  
         # - sudo k3d cluster list  
         # - sudo k3d node list  
         # - sudo kubectl get nodes  
