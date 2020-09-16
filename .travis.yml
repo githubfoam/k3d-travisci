@@ -83,11 +83,12 @@ matrix:
         - k3d version
         - k3d --help
         - kubectl version --client
-        # - docker version
+        - docker version
+        - docker-machine --version
         - docker-compose version
-        # - docker ps
-        # - k3d cluster list
-        # - sudo k3d cluster create demo --servers 3 --agents 3  
+        - docker ps
+        - k3d cluster list
+        - sudo k3d cluster create demo --servers 3 --agents 3  
         # - sudo k3d cluster list  
         # - sudo k3d node list  
         # - sudo kubectl get nodes  
