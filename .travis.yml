@@ -66,6 +66,8 @@ matrix:
           - helm
           - k3d
           - docker-compose
+          - docker-machine
+          - docker
           update: true
       before_install:
         - pip install virtualenv
