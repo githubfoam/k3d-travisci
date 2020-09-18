@@ -129,9 +129,11 @@ matrix:
         - sudo sh -c "curl -sSL https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v3.0.1 bash" #grab the latest release
         # - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
         - k3d version
+        - k3d --help
+        - k3d cluster create --help
         # - sudo k3d create cluster multidemo --verbose  --masters 3 --workers 6 #Create a single- or multi-node k3s cluster in docker containers
         # - sudo k3d create cluster --verbose  --masters 3 --workers 6 #Create a single- or multi-node k3s cluster in docker containers
-        - sudo k3d cluster create demo --verbose  --masters 3 --workers 6
+        # - sudo k3d cluster create demo --verbose  --masters 3 --workers 6
         - docker ps
         # - k3d --verbose create
         # - k3d list clusters
