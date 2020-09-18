@@ -119,8 +119,10 @@ matrix:
         - pip3 install virtualenv
         - virtualenv -p $(which python3) ~venvpy3
         - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
+        - python --version     
+        - pip install -r requirements.txt           
+      # <<: *fleet_install_tasks
+      # <<: *fleet_script_tasks
       script:
         # - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
         - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | TAG=v3.0.0-rc.3 bash" # grab a specific release (via TAG environment variable)
