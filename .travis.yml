@@ -125,7 +125,8 @@ matrix:
       # <<: *fleet_script_tasks
       script:
         # - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash" #grab the latest release
-        - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | TAG=v3.0.0-rc.3 bash" # grab a specific release (via TAG environment variable)
+        # - sudo sh -c "curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | TAG=v3.0.0-rc.3 bash" # grab a specific release (via TAG environment variable)
+        - sudo sh -c "curl -sSL https://raw.githubusercontent.com/rancher/k3d/main/install.sh | TAG=v3.0.1 bash" #grab the latest release
         # - curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash #Get k3d
         - k3d version
         # - sudo k3d create cluster multidemo --verbose  --masters 3 --workers 6 #Create a single- or multi-node k3s cluster in docker containers
